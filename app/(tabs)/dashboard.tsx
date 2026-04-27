@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, RefreshControl
+  StyleSheet, RefreshControl
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { useStore } from '../../src/store/useStore';
 import { getStockForUser } from '../../src/db/database';
@@ -11,8 +12,7 @@ const C = {
   bg: '#0D0D0E', s1: '#1A1A1C', s2: '#222224',
   border: 'rgba(255,255,255,0.08)', border2: 'rgba(255,255,255,0.14)',
   text: '#EFEFEF', text2: '#888', text3: '#555',
-  green: '#1D9E75', green2: '#5DCAA5',
-  amber: '#EF9F27', red: '#E24B4A',
+  green: '#1D9E75', green2: '#5DCAA5', amber: '#EF9F27', red: '#E24B4A',
 };
 
 function dayPill(stock: number, avg: number) {
@@ -30,8 +30,7 @@ export default function Dashboard() {
 
   const loadStock = useCallback(() => {
     if (!activeUser) return;
-    const data = getStockForUser(activeUser.id);
-    setStock(data);
+    setStock(getStockForUser(activeUser.id));
   }, [activeUser]);
 
   useFocusEffect(useCallback(() => { loadStock(); }, [loadStock]));
@@ -40,7 +39,7 @@ export default function Dashboard() {
 
   if (!activeUser) {
     return (
-      <SafeAreaView style={s.container}>
+      <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.center}>
           <Text style={s.emptyText}>No user logged in</Text>
           <TouchableOpacity onPress={() => router.replace('/')}>
@@ -55,14 +54,11 @@ export default function Dashboard() {
   const lowCount = stock.filter(d => d.quantity < 200).length;
 
   return (
-    <SafeAreaView style={s.container}>
-      {/* Top bar */}
+    <SafeAreaView style={s.container} edges={['top']}>
       <View style={s.topbar}>
         <View style={s.topbarLeft}>
           <View style={[s.avSm, { backgroundColor: activeUser.avatarColor + '33' }]}>
-            <Text style={[s.avSmText, { color: activeUser.avatarColor }]}>
-              {activeUser.initials}
-            </Text>
+            <Text style={[s.avSmText, { color: activeUser.avatarColor }]}>{activeUser.initials}</Text>
           </View>
           <Text style={s.topTitle}>{activeUser.name}'s Stock</Text>
         </View>
@@ -76,7 +72,6 @@ export default function Dashboard() {
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.green} />}
       >
-        {/* Switch user banner */}
         <View style={s.switchBanner}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.switchLabel}>Logged in as</Text>
@@ -92,7 +87,6 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        {/* Stats */}
         <View style={s.statRow}>
           <View style={s.statCard}>
             <Text style={s.statVal}>{totalStock.toLocaleString()}</Text>
@@ -104,11 +98,10 @@ export default function Dashboard() {
           </View>
         </View>
 
-        {/* Drinks list */}
         <Text style={s.secTitle}>All drinks</Text>
         <View style={s.drinksList}>
           {stock.map((d, i) => {
-            const pill = dayPill(d.quantity, d.avg_daily || 30);
+            const pill = dayPill(d.quantity, d.avg_daily || 0);
             return (
               <View key={d.id} style={[s.drinkRow, i === stock.length - 1 && { borderBottomWidth: 0 }]}>
                 <View style={s.drinkLeft}>
@@ -129,14 +122,12 @@ export default function Dashboard() {
           })}
         </View>
 
-        {/* CTAs */}
         <TouchableOpacity style={s.btnPrimary} onPress={() => router.push('/(tabs)/sales')}>
           <Text style={s.btnPrimaryText}>+ Record today's sales</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.btnOutline} onPress={() => router.push('/restock')}>
           <Text style={s.btnOutlineText}>+ Restock drinks</Text>
         </TouchableOpacity>
-
         <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>
@@ -164,16 +155,12 @@ const s = StyleSheet.create({
   streakBadge: { backgroundColor: 'rgba(239,159,39,0.12)', borderRadius: 7, paddingHorizontal: 6, paddingVertical: 2 },
   streakText: { fontSize: 10, fontWeight: '600', color: '#FAC775' },
   statRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-  statCard: { flex: 1, backgroundColor: C.s1, borderRadius: 12, padding: 12,
-    borderWidth: 0.5, borderColor: C.border },
+  statCard: { flex: 1, backgroundColor: C.s1, borderRadius: 12, padding: 12, borderWidth: 0.5, borderColor: C.border },
   statVal: { fontSize: 24, fontWeight: '700', color: C.text },
   statLbl: { fontSize: 10, color: C.text2, marginTop: 2 },
-  secTitle: { fontSize: 10, fontWeight: '600', color: C.text3, textTransform: 'uppercase',
-    letterSpacing: 0.8, marginBottom: 8 },
-  drinksList: { backgroundColor: C.s1, borderRadius: 12, borderWidth: 0.5,
-    borderColor: C.border, marginBottom: 14, overflow: 'hidden' },
-  drinkRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: 12, borderBottomWidth: 0.5, borderBottomColor: C.border },
+  secTitle: { fontSize: 10, fontWeight: '600', color: C.text3, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 },
+  drinksList: { backgroundColor: C.s1, borderRadius: 12, borderWidth: 0.5, borderColor: C.border, marginBottom: 14, overflow: 'hidden' },
+  drinkRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, borderBottomWidth: 0.5, borderBottomColor: C.border },
   drinkLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   drinkName: { fontSize: 13, fontWeight: '600', color: C.text },
@@ -182,10 +169,8 @@ const s = StyleSheet.create({
   stockNum: { fontSize: 14, fontWeight: '700', color: C.text, minWidth: 32, textAlign: 'right' },
   pill: { borderRadius: 8, paddingHorizontal: 7, paddingVertical: 3 },
   pillText: { fontSize: 10, fontWeight: '600' },
-  btnPrimary: { backgroundColor: C.green, borderRadius: 12, padding: 14,
-    alignItems: 'center', marginBottom: 8 },
+  btnPrimary: { backgroundColor: C.green, borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 8 },
   btnPrimaryText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  btnOutline: { borderWidth: 0.5, borderColor: C.border2, borderRadius: 12,
-    padding: 12, alignItems: 'center' },
+  btnOutline: { borderWidth: 0.5, borderColor: C.border2, borderRadius: 12, padding: 12, alignItems: 'center' },
   btnOutlineText: { color: C.text2, fontSize: 13 },
 });

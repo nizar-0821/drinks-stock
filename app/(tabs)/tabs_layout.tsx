@@ -1,13 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
-  return (
-    <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.4 }}>
-      {emoji}
-    </Text>
-  );
-}
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
@@ -23,7 +15,7 @@ export default function TabsLayout() {
           paddingTop: 6,
         },
         tabBarActiveTintColor: '#1D9E75',
-        tabBarInactiveTintColor: '#555',
+        tabBarInactiveTintColor: '#444',
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       }}
     >
@@ -31,28 +23,36 @@ export default function TabsLayout() {
         name="dashboard"
         options={{
           title: 'Stock',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📦" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'cube' : 'cube-outline'} size={22} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="sales"
         options={{
           title: 'Sales',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📅" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={22} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="summary"
         options={{
           title: 'Summary',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={22} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={22} color={color} />
+          ),
         }}
       />
     </Tabs>
